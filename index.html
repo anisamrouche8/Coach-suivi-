@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#151515">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Coach Suivi">
+  <meta name="description" content="Gestion locale des clients et forfaits de coaching sportif.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Coach Suivi</title>
+  <style>
+    :root{--bg:#f4f4f2;--card:#fff;--ink:#191919;--muted:#70706d;--line:#e4e4e0;--accent:#c7a56a;--dark:#191919;--red:#b63b35;--green:#2f7654}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:760px;margin:auto;padding:18px 16px 90px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:4px 0 20px}
+    .brand{font-size:12px;letter-spacing:.16em;font-weight:800;color:var(--muted);text-transform:uppercase}
+    h1{font-size:27px;margin:5px 0 0;letter-spacing:-.04em}
+    .pill{border:1px solid var(--line);border-radius:999px;padding:8px 11px;background:#fff;font-size:12px;color:var(--muted)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:18px}
+    .stat{background:var(--dark);color:#fff;border-radius:15px;padding:14px 12px}
+    .stat span{display:block;color:#c8c8c4;font-size:11px;margin-bottom:8px}
+    .stat strong{font-size:24px;letter-spacing:-.04em}
+    .toolbar{display:flex;gap:9px;margin:16px 0 12px}
+    .search{flex:1;min-width:0}
+    input,textarea,select{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff;color:var(--ink);outline:none}
+    input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+    .btn{border:0;border-radius:11px;padding:12px 14px;font-weight:700;background:var(--dark);color:#fff}
+    .btn.gold{background:var(--accent);color:#191919}
+    .btn.light{background:#fff;color:var(--ink);border:1px solid var(--line)}
+    .btn.small{padding:9px 10px;font-size:12px}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px}
+    h2{font-size:16px;margin:0}
+    .muted{color:var(--muted);font-size:12px}
+    .client-list{display:grid;gap:10px}
+    .client{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px}
+    .client-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .client-name{font-weight:800;font-size:16px}
+    .client-sub{font-size:12px;color:var(--muted);margin-top:4px}
+    .remaining{text-align:right;white-space:nowrap}
+    .remaining strong{display:block;font-size:24px;letter-spacing:-.04em}
+    .remaining span{font-size:11px;color:var(--muted)}
+    .bar{height:5px;background:#efefeb;border-radius:99px;overflow:hidden;margin:13px 0}
+    .bar > div{height:100%;background:var(--accent);border-radius:99px}
+    .client-actions{display:flex;flex-wrap:wrap;gap:7px}
+    .empty{padding:28px 18px;text-align:center;background:#fff;border:1px dashed #d3d3cc;border-radius:16px;color:var(--muted);line-height:1.5}
+    .empty strong{display:block;color:var(--ink);margin-bottom:6px}
+    .tabs{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:9px 14px calc(9px + env(safe-area-inset-bottom));display:flex;justify-content:center;z-index:5}
+    .tabs-inner{max-width:760px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .tab{border:0;background:transparent;color:var(--muted);padding:10px;border-radius:10px;font-weight:700}
+    .tab.active{background:var(--dark);color:#fff}
+    .hidden{display:none!important}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.42);display:flex;align-items:flex-end;justify-content:center;z-index:10;padding:14px}
+    .modal{background:var(--bg);border-radius:20px 20px 16px 16px;padding:20px;width:100%;max-width:560px;max-height:88dvh;overflow:auto}
+    .modal h2{font-size:20px;margin:0 0 16px}
+    .field{margin:12px 0}
+    .field label{display:block;font-size:12px;font-weight:700;margin:0 0 6px;color:#555}
+    .modal-actions{display:flex;gap:8px;margin-top:18px}
+    .modal-actions button{flex:1}
+    .history-item{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .history-title{font-weight:700;font-size:14px}
+    .history-meta{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+    .notice{background:#fff8e9;border:1px solid #ecd9b2;color:#6f5526;padding:12px;border-radius:12px;font-size:12px;line-height:1.45;margin-top:18px}
+    .danger{color:var(--red)}
+    .footer-note{font-size:11px;color:var(--muted);text-align:center;margin-top:24px;line-height:1.5}
+    @media(min-width:600px){.modal-backdrop{align-items:center}.stats{gap:12px}.stat{padding:17px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div><div class="brand">Coach Suivi</div><h1 id="pageTitle">Mes clients</h1></div>
+    <button class="pill" id="exportBtn" type="button">Exporter les données</button>
+  </header>
+  <section id="clientsPage">
+    <div class="stats">
+      <div class="stat"><span>Clients</span><strong id="statClients">0</strong></div>
+      <div class="stat"><span>Séances restantes</span><strong id="statRemaining">0</strong></div>
+      <div class="stat"><span>Séances réalisées</span><strong id="statDone">0</strong></div>
+    </div>
+    <div class="toolbar">
+      <input id="searchInput" class="search" type="search" placeholder="Rechercher un client…" aria-label="Rechercher un client">
+      <button class="btn gold" id="addClientBtn" type="button">+ Client</button>
+    </div>
+    <div class="section-head"><h2>Portefeuille clients</h2><span class="muted" id="clientCountLabel">0 client</span></div>
+    <div id="clientList" class="client-list"></div>
+  </section>
+  <section id="historyPage" class="hidden">
+    <div class="section-head"><h2>Historique des séances</h2><span class="muted">Les 100 dernières</span></div>
+    <div id="historyList"></div>
+    <div class="notice">Pour corriger un décompte, utilisez « Annuler » sur la séance concernée. La séance sera marquée comme annulée et le crédit sera restitué au forfait.</div>
+  </section>
+  <div class="footer-note">Données enregistrées uniquement dans ce navigateur sur cet appareil. Exportez régulièrement une sauvegarde.</div>
+</div>
+<nav class="tabs"><div class="tabs-inner">
+  <button class="tab active" data-tab="clients" type="button">Clients</button>
+  <button class="tab" data-tab="history" type="button">Historique</button>
+</div></nav>
+
+<div id="modalBackdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2 id="modalTitle">Ajouter un client</h2>
+    <form id="clientForm">
+      <input type="hidden" id="clientId">
+      <div class="field"><label for="clientName">Nom et prénom *</label><input id="clientName" required maxlength="100" placeholder="Ex. Camille Martin"></div>
+      <div class="field"><label for="clientContact">Téléphone ou e-mail (facultatif)</label><input id="clientContact" maxlength="150" placeholder="Coordonnées"></div>
+      <div class="field"><label for="packageTotal">Nombre de séances dans le forfait *</label><input id="packageTotal" type="number" min="0" max="9999" step="1" required value="10"></div>
+      <div class="field"><label for="clientNote">Note (facultatif)</label><textarea id="clientNote" rows="2" maxlength="500" placeholder="Ex. forfait 10 séances, valable jusqu'au…"></textarea></div>
+      <div class="modal-actions"><button class="btn light" id="cancelModalBtn" type="button">Annuler</button><button class="btn gold" type="submit">Enregistrer</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'coach-suivi-v1';
+  let state = loadState();
+  let activeTab = 'clients';
+  const $ = id => document.getElementById(id);
+  function loadState(){
+    try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY)); if(s && Array.isArray(s.clients) && Array.isArray(s.sessions)) return s; } catch(e){}
+    return {clients:[], sessions:[]};
+  }
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); render(); }
+  function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2)); }
+  function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(d){ return new Date(d).toLocaleString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function clientSessions(id){ return state.sessions.filter(s => s.clientId===id && !s.undone && s.kind!=='credit'); }
+  function counts(c){
+    const done = clientSessions(c.id).length;
+    const total = Number(c.packageTotal)||0;
+    return {done, total, remaining:Math.max(0,total-done), extra:Math.max(0,done-total)};
+  }
+  function render(){
+    const totalDone = state.sessions.filter(s=>!s.undone && s.kind!=='credit').length;
+    const totalRemaining = state.clients.reduce((sum,c)=>sum+counts(c).remaining,0);
+    $('statClients').textContent = state.clients.length;
+    $('statRemaining').textContent = totalRemaining;
+    $('statDone').textContent = totalDone;
+    $('clientCountLabel').textContent = `${state.clients.length} client${state.clients.length>1?'s':''}`;
+    const query = $('searchInput').value.trim().toLocaleLowerCase('fr');
+    const filtered = state.clients.filter(c => (c.name+' '+(c.contact||'')+' '+(c.note||'')).toLocaleLowerCase('fr').includes(query)).sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+    $('clientList').innerHTML = filtered.length ? filtered.map(c=>{
+      const n=counts(c), pct=n.total?Math.min(100,n.done/n.total*100):0;
+      return `<article class="client">
+        <div class="client-top"><div><div class="client-name">${esc(c.name)}</div><div class="client-sub">${esc(c.contact||'Aucune coordonnée renseignée')}</div>${c.note?`<div class="client-sub">${esc(c.note)}</div>`:''}</div>
+        <div class="remaining"><strong>${n.remaining}</strong><span>séance${n.remaining>1?'s':''} restante${n.remaining>1?'s':''}</span></div></div>
+        <div class="bar"><div style="width:${pct}%"></div></div>
+        <div class="client-sub" style="margin:0 0 12px">${n.done} réalisée${n.done>1?'s':''} sur ${n.total} · ${n.extra?`${n.extra} séance(s) au-delà du forfait`:'forfait en cours'}</div>
+        <div class="client-actions">
+          <button class="btn gold small" data-action="done" data-id="${c.id}" type="button">− Décompter 1 séance</button>
+          <button class="btn light small" data-action="add" data-id="${c.id}" type="button">+ Ajouter des séances</button>
+          <button class="btn light small" data-action="edit" data-id="${c.id}" type="button">Modifier</button>
+          <button class="btn light small" data-action="history" data-id="${c.id}" type="button">Historique</button>
+        </div>
+      </article>`;
+    }).join('') : `<div class="empty"><strong>${query?'Aucun résultat':'Aucun client pour le moment'}</strong>${query?'Essaie un autre nom ou une autre recherche.':'Ajoute ton premier client pour commencer à décompter les séances.'}</div>`;
+    const sessions = [...state.sessions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,100);
+    $('historyList').innerHTML = sessions.length ? sessions.map(s=>{
+      const c=state.clients.find(x=>x.id===s.clientId);
+      return `<div class="history-item"><div><div class="history-title">${esc(c?c.name:'Client supprimé')} ${s.undone?'<span class="danger">· annulée</span>':''}</div><div class="history-meta">${fmtDate(s.date)}${s.note?' · '+esc(s.note):''}</div></div>
+      ${!s.undone?`<button class="btn light small" data-action="undo" data-id="${s.id}" type="button">Annuler</button>`:`<span class="muted">Crédit restitué</span>`}</div>`;
+    }).join('') : `<div class="empty"><strong>Aucune séance enregistrée</strong>Les décomptes apparaîtront ici.</div>`;
+  }
+  function showModal(c=null){
+    $('clientForm').reset();
+    $('clientId').value=c?.id||'';
+    $('modalTitle').textContent=c?'Modifier le client':'Ajouter un client';
+    $('clientName').value=c?.name||'';
+    $('clientContact').value=c?.contact||'';
+    $('packageTotal').value=c?c.packageTotal:10;
+    $('clientNote').value=c?.note||'';
+    $('modalBackdrop').classList.remove('hidden');
+    setTimeout(()=>$('clientName').focus(),50);
+  }
+  function hideModal(){ $('modalBackdrop').classList.add('hidden'); }
+  function addSession(clientId){
+    const c=state.clients.find(x=>x.id===clientId); if(!c)return;
+    if(!confirm(`Décompter 1 séance pour ${c.name} ?`))return;
+    state.sessions.push({id:uid(),clientId,date:new Date().toISOString(),undone:false,note:'Séance décomptée'});
+    save();
+  }
+  function addCredits(clientId){
+    const c=state.clients.find(x=>x.id===clientId); if(!c)return;
+    const amount=prompt(`Combien de séances ajouter au forfait de ${c.name} ?`,'10');
+    if(amount===null)return;
+    const num=Number(amount);
+    if(!Number.isInteger(num)||num<1||num>9999){alert('Saisis un nombre entier compris entre 1 et 9999.');return;}
+    c.packageTotal=(Number(c.packageTotal)||0)+num;
+    state.sessions.push({id:uid(),clientId,date:new Date().toISOString(),undone:false,kind:'credit',credit:num,note:`Ajout de ${num} séance(s)`, countsAsSession:false});
+    save();
+  }
+  function undoSession(id){
+    const s=state.sessions.find(x=>x.id===id); if(!s||s.undone)return;
+    if(s.kind==='credit'){
+      const c=state.clients.find(x=>x.id===s.clientId);
+      if(c){
+        const current=Number(c.packageTotal)||0;
+        if(current-(s.credit||0)<clientSessions(c.id).length){alert('Impossible d’annuler cet ajout : des séances du forfait ont déjà été consommées.');return;}
+        c.packageTotal=current-(s.credit||0);
+      }
+    } else {
+      const c=state.clients.find(x=>x.id===s.clientId);
+      if(c && counts(c).remaining >= counts(c).total && counts(c).done===0){ /* no-op */ }
+    }
+    s.undone=true;
+    save();
+  }
+  document.addEventListener('click', e=>{
+    const btn=e.target.closest('[data-action]'); if(!btn)return;
+    const {action,id}=btn.dataset;
+    if(action==='done')addSession(id);
+    if(action==='add')addCredits(id);
+    if(action==='edit'){const c=state.clients.find(x=>x.id===id);if(c)showModal(c);}
+    if(action==='history'){activeTab='history';switchTab();const c=state.clients.find(x=>x.id===id);if(c){$('historyList').innerHTML=state.sessions.filter(s=>s.clientId===id).sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s=>`<div class="history-item"><div><div class="history-title">${esc(c.name)} ${s.undone?'<span class="danger">· annulée</span>':''}</div><div class="history-meta">${fmtDate(s.date)} · ${esc(s.note||'Séance')}</div></div>${!s.undone?`<button class="btn light small" data-action="undo" data-id="${s.id}" type="button">Annuler</button>`:'<span class="muted">Annulée</span>'}</div>`).join('')||'<div class="empty">Aucun historique pour ce client.</div>';}}
+    if(action==='undo'){if(confirm('Annuler cette opération et restituer le crédit correspondant ?'))undoSession(id);}
+  });
+  $('clientForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const id=$('clientId').value;
+    const data={name:$('clientName').value.trim(),contact:$('clientContact').value.trim(),packageTotal:Number($('packageTotal').value),note:$('clientNote').value.trim()};
+    if(!data.name||!Number.isInteger(data.packageTotal)||data.packageTotal<0){alert('Vérifie le nom et le nombre de séances.');return;}
+    if(id){const c=state.clients.find(x=>x.id===id);if(c)Object.assign(c,data);}
+    else state.clients.push({id:uid(),...data,createdAt:new Date().toISOString()});
+    hideModal();save();
+  });
+  $('addClientBtn').addEventListener('click',()=>showModal());
+  $('cancelModalBtn').addEventListener('click',hideModal);
+  $('modalBackdrop').addEventListener('click',e=>{if(e.target===$('modalBackdrop'))hideModal();});
+  $('searchInput').addEventListener('input',render);
+  function switchTab(){
+    $('clientsPage').classList.toggle('hidden',activeTab!=='clients');
+    $('historyPage').classList.toggle('hidden',activeTab!=='history');
+    $('pageTitle').textContent=activeTab==='clients'?'Mes clients':'Historique';
+    document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===activeTab));
+    render();
+  }
+  document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{activeTab=b.dataset.tab;switchTab();}));
+  $('exportBtn').addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),...state},null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`coach-suivi-sauvegarde-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);
+  });
+  render();
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
